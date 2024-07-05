@@ -1,9 +1,9 @@
 ﻿{
 	"name": "Mercenary_Skins_Fix",
 	"authorName": "Gorakh",
-	"version_number": "1.0.0",
+	"version_number": "1.1.0",
 	"website_url": "https://github.com/Goorakh/MercSkinsFix",
-	"description": "MANUAL CONFIG fix for Mercenary skins broken by the Devotion update. Clientside. See README",
+	"description": "Attempts to fix Mercenary skins broken by the Devotion update. Clientside. See README.",
 	"dependencies": [
 		"bbepis-BepInExPack-5.4.2113",
 		"RiskofThunder-HookGenPatcher-1.2.3",
