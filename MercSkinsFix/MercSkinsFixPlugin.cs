@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -267,6 +269,33 @@ namespace MercSkinsFix
                     }
                 }
 
+                // Remove rich text tags
+                string richTextRemovedSkinName = Regex.Replace(skinName, @"<[^<>]+>", string.Empty);
+                if (!string.IsNullOrEmpty(richTextRemovedSkinName))
+                {
+                    skinName = richTextRemovedSkinName;
+                }
+
+                skinName = skinName.FilterConfigKey();
+                if (string.IsNullOrEmpty(skinName))
+                {
+                    System.Random random = new System.Random(skin.nameToken.GetHashCode());
+
+                    StringBuilder sb = HG.StringBuilderPool.RentStringBuilder();
+
+                    byte[] buffer = new byte[16];
+                    random.NextBytes(buffer);
+
+                    for (int i = 0; i < buffer.Length; i++)
+                    {
+                        sb.Append(buffer[i].ToString("X2"));
+                    }
+
+                    skinName = $"INVALID SKIN NAME {sb}";
+
+                    HG.StringBuilderPool.ReturnStringBuilder(sb);
+                }
+
                 if (usedSectionKeys.TryGetValue(sectionName, out HashSet<string> usedKeys))
                 {
                     if (!usedKeys.Add(skinName))
@@ -286,7 +315,7 @@ namespace MercSkinsFix
                     usedSectionKeys.Add(sectionName, [skinName]);
                 }
 
-                ConfigEntry<bool> shouldApplyToSkinConfig = Config.Bind(sectionName, $"Fix {skinName}", fixEnabledByDefault, "Apply the fix to this skin");
+                ConfigEntry<bool> shouldApplyToSkinConfig = Config.Bind(sectionName.FilterConfigKey(), $"Fix {skinName}", fixEnabledByDefault, "Apply the fix to this skin");
 
                 ModSettingsManager.AddOption(new CheckBoxOption(shouldApplyToSkinConfig), SETTING_MOD_GUID, SETTING_MOD_NAME);
 
