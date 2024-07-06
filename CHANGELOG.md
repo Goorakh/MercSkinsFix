@@ -1,3 +1,7 @@
+**1.2.0 Changes:**
+
+* Fixed getting stuck at 100% if any skin name contained invalid characters
+
 **1.1.0 Changes:**
 
 * Fixed getting stuck at 100% load if several Mercenary skins share the same name

@@ -24,7 +24,7 @@ namespace MercSkinsFix
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "Gorakh";
         public const string PluginName = "MercSkinsFix";
-        public const string PluginVersion = "1.1.0";
+        public const string PluginVersion = "1.2.0";
 
         internal static MercSkinsFixPlugin Instance { get; private set; }
 
