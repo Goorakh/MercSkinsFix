@@ -6,7 +6,6 @@
 	"description": "Attempts to fix Mercenary skins broken by the Devotion update. Clientside. See README.",
 	"dependencies": [
 		"bbepis-BepInExPack-5.4.2113",
-		"RiskofThunder-HookGenPatcher-1.2.3",
 		"RiskofThunder-R2API_Core-5.1.0",
 		"Rune580-Risk_Of_Options-2.8.0"
 	]

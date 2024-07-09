@@ -1,3 +1,7 @@
+**?.?.? Changes:**
+
+* Removed unnecessary HookGenPatcher dependency
+
 **1.2.0 Changes:**
 
 * Fixed getting stuck at 100% if any skin name contained invalid characters
