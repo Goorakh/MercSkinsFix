@@ -1,5 +1,7 @@
 **?.?.? Changes:**
 
+* Fixed skin configs not saving properly.
+
 * Removed unnecessary HookGenPatcher dependency
 
 **1.2.0 Changes:**

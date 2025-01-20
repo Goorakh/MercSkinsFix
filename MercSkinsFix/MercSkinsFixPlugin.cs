@@ -182,6 +182,8 @@ namespace MercSkinsFix
 
             Config.SaveOnConfigSet = false;
 
+            bool anySettingAdded = false;
+
             foreach (SkinDef skin in skins)
             {
                 if (Array.IndexOf(vanillaMercSkinDefs, skin) >= 0)
@@ -320,6 +322,8 @@ namespace MercSkinsFix
 
                 ModSettingsManager.AddOption(new CheckBoxOption(shouldApplyToSkinConfig), SETTING_MOD_GUID, SETTING_MOD_NAME);
 
+                anySettingAdded = true;
+
                 if (shouldApplyToSkinConfig.Value)
                 {
                     setApplyToSkin(true);
@@ -335,34 +339,37 @@ namespace MercSkinsFix
                 };
             }
 
-            Config.SaveOnConfigSet = false;
+            Config.SaveOnConfigSet = true;
             Config.Save();
 
-            ModSettingsManager.SetModDescription("Fix broken Mercenary skins after the Devotion update", SETTING_MOD_GUID, SETTING_MOD_NAME);
-
-            FileInfo iconFile = null;
-
-            DirectoryInfo dir = new DirectoryInfo(System.IO.Path.GetDirectoryName(Info.Location));
-            do
+            if (anySettingAdded)
             {
-                FileInfo[] files = dir.GetFiles("icon.png", SearchOption.TopDirectoryOnly);
-                if (files != null && files.Length > 0)
+                ModSettingsManager.SetModDescription("Fix broken Mercenary skins after the Devotion update", SETTING_MOD_GUID, SETTING_MOD_NAME);
+
+                FileInfo iconFile = null;
+
+                DirectoryInfo dir = new DirectoryInfo(System.IO.Path.GetDirectoryName(Info.Location));
+                do
                 {
-                    iconFile = files[0];
-                    break;
-                }
+                    FileInfo[] files = dir.GetFiles("icon.png", SearchOption.TopDirectoryOnly);
+                    if (files != null && files.Length > 0)
+                    {
+                        iconFile = files[0];
+                        break;
+                    }
 
-                dir = dir.Parent;
-            } while (dir != null && !string.Equals(dir.Name, "plugins", StringComparison.OrdinalIgnoreCase));
+                    dir = dir.Parent;
+                } while (dir != null && !string.Equals(dir.Name, "plugins", StringComparison.OrdinalIgnoreCase));
 
-            if (iconFile != null)
-            {
-                Texture2D iconTexture = new Texture2D(256, 256);
-                if (iconTexture.LoadImage(File.ReadAllBytes(iconFile.FullName)))
+                if (iconFile != null)
                 {
-                    Sprite iconSprite = Sprite.Create(iconTexture, new Rect(0f, 0f, iconTexture.width, iconTexture.height), new Vector2(0.5f, 0.5f));
+                    Texture2D iconTexture = new Texture2D(256, 256);
+                    if (iconTexture.LoadImage(File.ReadAllBytes(iconFile.FullName)))
+                    {
+                        Sprite iconSprite = Sprite.Create(iconTexture, new Rect(0f, 0f, iconTexture.width, iconTexture.height), new Vector2(0.5f, 0.5f));
 
-                    ModSettingsManager.SetModIcon(iconSprite, SETTING_MOD_GUID, SETTING_MOD_NAME);
+                        ModSettingsManager.SetModIcon(iconSprite, SETTING_MOD_GUID, SETTING_MOD_NAME);
+                    }
                 }
             }
 
