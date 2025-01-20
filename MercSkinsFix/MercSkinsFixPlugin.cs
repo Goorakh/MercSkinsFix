@@ -154,6 +154,7 @@ namespace MercSkinsFix
                 Addressables.LoadAssetAsync<SkinDef>("RoR2/Base/Merc/skinMercDefault.asset").WaitForCompletion(),
                 Addressables.LoadAssetAsync<SkinDef>("RoR2/Base/Merc/skinMercAlt.asset").WaitForCompletion(),
                 Addressables.LoadAssetAsync<SkinDef>("RoR2/Base/Merc/skinMercAltPrisoner.asset").WaitForCompletion(),
+                Addressables.LoadAssetAsync<SkinDef>("RoR2/Base/Merc/skinMercAltColossus.asset").WaitForCompletion(),
             ];
 
             GameObject mercBodyPrefab = BodyCatalog.FindBodyPrefab("MercBody");
