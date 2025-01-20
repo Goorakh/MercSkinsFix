@@ -109,20 +109,8 @@
     <Delete Files="$(TSPackagePluginDir)/$(AssemblyName).dll" />
     <Delete Files="$(TSPackagePluginDir)/$(AssemblyName).pdb" Condition="'$(Configuration)'=='Release'" ContinueOnError="true" />
     
-    <Exec Command="Unity.UNetWeaver.exe $(PkgUnityEngine_Modules)\lib\$(TargetFramework)\UnityEngine.CoreModule.dll $(PkgRiskOfRain2_GameLibs)\lib\$(TargetFramework)\com.unity.multiplayer-hlapi.Runtime.dll $(TSPackagePluginDir) $(SolutionDir)$(ProjectName)\$(OutDir)$(AssemblyName).dll $(ProjectDir)\libs\" WorkingDirectory="$(ProjectDir)\NetworkWeaver" />
-    
-    <PropertyGroup>
-      <NetWeaverHasOutput>false</NetWeaverHasOutput>
-      <NetWeaverHasOutput Condition="Exists('$(TSPackagePluginDir)/$(AssemblyName).dll')">true</NetWeaverHasOutput>
-    </PropertyGroup>
-    
-    <Copy SourceFiles="$(OutDir)$(AssemblyName).dll" DestinationFolder="$(TSPackagePluginDir)" Condition="!$(NetWeaverHasOutput)" />
+    <Copy SourceFiles="$(OutDir)$(AssemblyName).dll" DestinationFolder="$(TSPackagePluginDir)" />
     <Copy SourceFiles="$(OutDir)$(AssemblyName).pdb" DestinationFolder="$(TSPackagePluginDir)" Condition="'$(Configuration)'=='Debug'" ContinueOnError="true" />
-    
-    <Delete Files="$(TSPackagePluginDir)/$(AssemblyName).dll.mdb" Condition="$(NetWeaverHasOutput)" ContinueOnError="true" />
-      
-    <!--Weaver messes up debug symbols, so they can't be used at all if it ran-->
-    <Delete Files="$(TSPackagePluginDir)/$(AssemblyName).pdb" Condition="$(NetWeaverHasOutput)" ContinueOnError="true" />
     
     <ZipDirectory SourceDirectory="$(TSPackageDir)" DestinationFile="$(BuildDir)/$(SolutionName).zip" Overwrite="true" />
   </Target>
