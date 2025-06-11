@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using HG;
 using RoR2;
 using UnityEngine;
@@ -10,7 +11,7 @@ namespace MercSkinsFix
 #pragma warning disable CS0618 // Type or member is obsolete
         public static void SetApplyToSkin(SkinDef skin, bool apply)
         {
-            var modelRoot = BodyCatalog.FindBodyPrefab("MercBody").GetComponent<ModelLocator>().modelTransform.gameObject;
+            GameObject modelRoot = BodyCatalog.FindBodyPrefab("MercBody").GetComponent<ModelLocator>().modelTransform.gameObject;
 
             Renderer[] renderers = modelRoot.GetComponentsInChildren<Renderer>(true);
 
@@ -89,10 +90,11 @@ namespace MercSkinsFix
                 skinDefParams.minionSkinReplacements[l] = orig.minionSkinReplacements[l];
             }
 
-
             // cursed
-            var enumerator = orig.BakeAsync();
-            while (enumerator.MoveNext()) ;
+            IEnumerator enumerator = orig.BakeAsync();
+            while (enumerator.MoveNext())
+            {
+            }
         }
 #pragma warning restore CS0618 // Type or member is obsolete
     }

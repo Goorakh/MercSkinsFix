@@ -158,8 +158,7 @@ namespace MercSkinsFix
 
         private void OnLoad()
         {
-            SkinDef[] vanillaMercSkinDefs =
-            [
+            SkinDef[] vanillaMercSkinDefs = [
                 Addressables.LoadAssetAsync<SkinDef>(RoR2_Base_Merc.skinMercDefault_asset).WaitForCompletion(),
                 Addressables.LoadAssetAsync<SkinDef>(RoR2_Base_Merc.skinMercAlt_asset).WaitForCompletion(),
                 Addressables.LoadAssetAsync<SkinDef>(RoR2_Base_Merc.skinMercAltPrisoner_asset).WaitForCompletion(),
