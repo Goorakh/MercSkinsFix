@@ -170,7 +170,7 @@ namespace MercSkinsFix
 
             foreach (SkinDef skin in SkinCatalog.GetBodySkinDefs(BodyCatalog.FindBodyIndex("MercBody")))
             {
-                if (Array.IndexOf(vanillaMercSkinDefs, skin) == -1)
+                if (Array.IndexOf(vanillaMercSkinDefs, skin) != -1)
                     continue;
 
                 Assembly ownerAssembly = _skinOwnerAssemblies.GetValueSafe(skin);
