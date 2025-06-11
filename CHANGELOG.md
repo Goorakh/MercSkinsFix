@@ -1,3 +1,7 @@
+**1.2.2 Changes:**
+
+* Fixed for Memory Optimization update (thanks .score)
+
 **1.2.1 Changes:**
 
 * Fixed skin configs not saving properly.
