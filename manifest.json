@@ -1,7 +1,7 @@
 ﻿{
 	"name": "Mercenary_Skins_Fix",
 	"author": "Gorakh",
-	"version_number": "1.2.2",
+	"version_number": "1.2.3",
 	"website_url": "https://github.com/Goorakh/MercSkinsFix",
 	"description": "Attempts to fix Mercenary skins broken by the Devotion update. Clientside. See README.",
 	"dependencies": [
