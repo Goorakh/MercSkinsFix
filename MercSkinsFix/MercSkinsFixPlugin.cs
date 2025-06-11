@@ -270,7 +270,7 @@ namespace MercSkinsFix
                     usedSectionKeys.Add(sectionName, [skinName]);
                 }
 
-                ConfigEntry<bool> shouldApplyToSkinConfig = Config.Bind(sectionName.FilterConfigKey(), $"Fix {skinName}", fixEnabledByDefault, "Apply the fix to this skin");
+                ConfigEntry<bool> shouldApplyToSkinConfig = Config.Bind(sectionName.FilterConfigKey(), $"Fix {skinName}".FilterConfigKey(), fixEnabledByDefault, "Apply the fix to this skin");
 
                 ModSettingsManager.AddOption(new CheckBoxOption(shouldApplyToSkinConfig), SETTING_MOD_GUID, SETTING_MOD_NAME);
 

@@ -37,7 +37,7 @@ namespace MercSkinsFix
                 return key;
             }
 
-            return key.FilterChars(_invalidConfigDefinitionChars);
+            return key.FilterChars(_invalidConfigDefinitionChars).Trim();
         }
     }
 }
