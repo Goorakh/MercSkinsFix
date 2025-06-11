@@ -65,6 +65,8 @@ namespace MercSkinsFix
         {
             ScriptableObject obj = orig(type);
 
+            try
+            {
             if (obj is SkinDef skinDef)
             {
                 StackTrace stackTrace = new StackTrace();
@@ -144,6 +146,11 @@ namespace MercSkinsFix
                     _skinOwnerAssemblies.Add(skinDef, assembly);
                     break;
                 }
+            }
+            }
+            catch (Exception e)
+            {
+                Log.Error_NoCallerPrefix(e);
             }
 
             return obj;
