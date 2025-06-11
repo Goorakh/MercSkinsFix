@@ -22,7 +22,7 @@ namespace MercSkinsFix
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     public class MercSkinsFixPlugin : BaseUnityPlugin
     {
-        public const string PluginGUID = PluginAuthor + "." + PluginName;
+        public const string PluginGUID = $"___com.{PluginAuthor}.{PluginName}";
         public const string PluginAuthor = "Gorakh";
         public const string PluginName = "MercSkinsFix";
         public const string PluginVersion = "1.2.1";
@@ -67,86 +67,86 @@ namespace MercSkinsFix
 
             try
             {
-            if (obj is SkinDef skinDef)
-            {
-                StackTrace stackTrace = new StackTrace();
-
-                for (int i = 0; i < stackTrace.FrameCount; i++)
+                if (obj is SkinDef skinDef)
                 {
-                    StackFrame frame = stackTrace.GetFrame(i);
+                    StackTrace stackTrace = new StackTrace();
 
-                    Assembly assembly = frame?.GetMethod()?.DeclaringType?.Assembly;
-                    if (assembly == null || assembly == Assembly.GetExecutingAssembly())
-                        continue;
-
-                    if (!_assemblyPluginLookup.TryGetValue(assembly, out BepInEx.PluginInfo plugin))
+                    for (int i = 0; i < stackTrace.FrameCount; i++)
                     {
-                        plugin = null;
+                        StackFrame frame = stackTrace.GetFrame(i);
 
-                        foreach (BepInEx.PluginInfo pluginInfo in Chainloader.PluginInfos.Values)
+                        Assembly assembly = frame?.GetMethod()?.DeclaringType?.Assembly;
+                        if (assembly == null || assembly == Assembly.GetExecutingAssembly())
+                            continue;
+
+                        if (!_assemblyPluginLookup.TryGetValue(assembly, out BepInEx.PluginInfo plugin))
                         {
-                            if (pluginInfo.Instance && pluginInfo.Instance.GetType().Assembly == assembly)
+                            plugin = null;
+
+                            foreach (BepInEx.PluginInfo pluginInfo in Chainloader.PluginInfos.Values)
                             {
-                                plugin = pluginInfo;
-                                break;
+                                if (pluginInfo.Instance && pluginInfo.Instance.GetType().Assembly == assembly)
+                                {
+                                    plugin = pluginInfo;
+                                    break;
+                                }
                             }
+
+                            _assemblyPluginLookup.Add(assembly, plugin);
                         }
 
-                        _assemblyPluginLookup.Add(assembly, plugin);
-                    }
+                        if (plugin == null)
+                            continue;
 
-                    if (plugin == null)
-                        continue;
-
-                    if (!_assemblyTimestampLookup.ContainsKey(assembly))
-                    {
-                        DateTime? assemblyTimestamp = null;
-
-                        string assemblyLocation = assembly.Location;
-                        if (!string.IsNullOrEmpty(assemblyLocation) && File.Exists(assemblyLocation))
+                        if (!_assemblyTimestampLookup.ContainsKey(assembly))
                         {
-                            // https://stackoverflow.com/questions/2050396/getting-the-date-of-a-net-assembly
+                            DateTime? assemblyTimestamp = null;
 
-                            const int peHeaderOffset = 60;
-                            const int linkerTimestampOffset = 8;
-
-                            try
+                            string assemblyLocation = assembly.Location;
+                            if (!string.IsNullOrEmpty(assemblyLocation) && File.Exists(assemblyLocation))
                             {
-                                using FileStream fs = File.Open(assemblyLocation, FileMode.Open, FileAccess.Read, FileShare.Read);
+                                // https://stackoverflow.com/questions/2050396/getting-the-date-of-a-net-assembly
 
-                                byte[] buffer = new byte[2048];
-                                int bytesRead = fs.Read(buffer, 0, 2048);
-                                if (bytesRead >= peHeaderOffset)
+                                const int peHeaderOffset = 60;
+                                const int linkerTimestampOffset = 8;
+
+                                try
                                 {
-                                    int linkerTimestampLocation = BitConverter.ToInt32(buffer, peHeaderOffset) + linkerTimestampOffset;
-                                    if (bytesRead >= linkerTimestampLocation + sizeof(int))
+                                    using FileStream fs = File.Open(assemblyLocation, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                                    byte[] buffer = new byte[2048];
+                                    int bytesRead = fs.Read(buffer, 0, 2048);
+                                    if (bytesRead >= peHeaderOffset)
                                     {
-                                        int timestampSeconds = BitConverter.ToInt32(buffer, linkerTimestampLocation);
-
-                                        DateTime linkerTimestampUTC = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(timestampSeconds);
-
-                                        // Timestamp is not *always* number of seconds
-                                        // TODO: Handle other cases? Filter out for now
-                                        if (linkerTimestampUTC > new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc) && linkerTimestampUTC < DateTime.UtcNow)
+                                        int linkerTimestampLocation = BitConverter.ToInt32(buffer, peHeaderOffset) + linkerTimestampOffset;
+                                        if (bytesRead >= linkerTimestampLocation + sizeof(int))
                                         {
-                                            assemblyTimestamp = linkerTimestampUTC;
+                                            int timestampSeconds = BitConverter.ToInt32(buffer, linkerTimestampLocation);
+
+                                            DateTime linkerTimestampUTC = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(timestampSeconds);
+
+                                            // Timestamp is not *always* number of seconds
+                                            // TODO: Handle other cases? Filter out for now
+                                            if (linkerTimestampUTC > new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc) && linkerTimestampUTC < DateTime.UtcNow)
+                                            {
+                                                assemblyTimestamp = linkerTimestampUTC;
+                                            }
                                         }
                                     }
                                 }
+                                catch (Exception e)
+                                {
+                                    Log.Error_NoCallerPrefix($"Failed to determine assembly date for {assembly.GetName()}: {e}");
+                                }
                             }
-                            catch (Exception e)
-                            {
-                                Log.Error_NoCallerPrefix($"Failed to determine assembly date for {assembly.GetName()}: {e}");
-                            }
+
+                            _assemblyTimestampLookup.Add(assembly, assemblyTimestamp);
                         }
 
-                        _assemblyTimestampLookup.Add(assembly, assemblyTimestamp);
+                        _skinOwnerAssemblies.Add(skinDef, assembly);
+                        break;
                     }
-
-                    _skinOwnerAssemblies.Add(skinDef, assembly);
-                    break;
                 }
-            }
             }
             catch (Exception e)
             {
