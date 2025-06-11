@@ -6,6 +6,7 @@ using MonoMod.RuntimeDetour;
 using RiskOfOptions;
 using RiskOfOptions.Options;
 using RoR2;
+using RoR2BepInExPack.GameAssetPaths;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -48,7 +49,7 @@ namespace MercSkinsFix
             stopwatch.Stop();
             Log.Info_NoCallerPrefix($"Initialized in {stopwatch.Elapsed.TotalSeconds:F2} seconds");
 
-            DelegateUtils.Append(ref RoR2Application.onLoad, onLoad);
+            DelegateUtils.Append(ref RoR2Application.onLoad, OnLoad);
         }
 
         void OnDestroy()
@@ -60,7 +61,7 @@ namespace MercSkinsFix
         }
 
         delegate ScriptableObject orig_ScriptableObject_CreateInstance(Type type);
-        static ScriptableObject ScriptableObject_CreateInstance(orig_ScriptableObject_CreateInstance orig, Type type)
+        private static ScriptableObject ScriptableObject_CreateInstance(orig_ScriptableObject_CreateInstance orig, Type type)
         {
             ScriptableObject obj = orig(type);
 
@@ -148,32 +149,15 @@ namespace MercSkinsFix
             return obj;
         }
 
-        void onLoad()
+        private void OnLoad()
         {
-            SkinDef[] vanillaMercSkinDefs = [
-                Addressables.LoadAssetAsync<SkinDef>("RoR2/Base/Merc/skinMercDefault.asset").WaitForCompletion(),
-                Addressables.LoadAssetAsync<SkinDef>("RoR2/Base/Merc/skinMercAlt.asset").WaitForCompletion(),
-                Addressables.LoadAssetAsync<SkinDef>("RoR2/Base/Merc/skinMercAltPrisoner.asset").WaitForCompletion(),
-                Addressables.LoadAssetAsync<SkinDef>("RoR2/Base/Merc/skinMercAltColossus.asset").WaitForCompletion(),
+            SkinDef[] vanillaMercSkinDefs =
+            [
+                Addressables.LoadAssetAsync<SkinDef>(RoR2_Base_Merc.skinMercDefault_asset).WaitForCompletion(),
+                Addressables.LoadAssetAsync<SkinDef>(RoR2_Base_Merc.skinMercAlt_asset).WaitForCompletion(),
+                Addressables.LoadAssetAsync<SkinDef>(RoR2_Base_Merc.skinMercAltPrisoner_asset).WaitForCompletion(),
+                Addressables.LoadAssetAsync<SkinDef>(RoR2_Base_Merc.skinMercAltColossus_asset).WaitForCompletion(),
             ];
-
-            GameObject mercBodyPrefab = BodyCatalog.FindBodyPrefab("MercBody");
-
-            ModelLocator modelLocator = mercBodyPrefab.GetComponent<ModelLocator>();
-
-            GameObject modelRoot = modelLocator.modelTransform.gameObject;
-
-            Renderer[] renderers = modelRoot.GetComponentsInChildren<Renderer>(true);
-            
-            Renderer[] preDevotionRenderersList = [
-                modelRoot.transform.Find("MercArmature/ROOT/base/stomach/chest/PreDashEffect/ContractingEnergy")?.GetComponent<Renderer>(),
-                modelRoot.transform.Find("MercArmature/ROOT/base/stomach/chest/PreDashEffect/FireEmission")?.GetComponent<Renderer>(),
-                modelRoot.transform.Find("MercArmature/ROOT/base/stomach/chest/PreDashEffect/BrightRing")?.GetComponent<Renderer>(),
-                modelRoot.transform.Find("MercMesh")?.GetComponent<Renderer>(),
-                modelRoot.transform.Find("MercSwordMesh")?.GetComponent<Renderer>(),
-            ];
-
-            SkinDef[] skins = BodyCatalog.GetBodySkins(BodyCatalog.FindBodyIndex(mercBodyPrefab));
 
             const string SETTING_MOD_GUID = PluginGUID;
             const string SETTING_MOD_NAME = "Mercenary Skins Fix";
@@ -184,53 +168,13 @@ namespace MercSkinsFix
 
             bool anySettingAdded = false;
 
-            foreach (SkinDef skin in skins)
+            foreach (SkinDef skin in SkinCatalog.GetBodySkinDefs(BodyCatalog.FindBodyIndex("MercBody")))
             {
-                if (Array.IndexOf(vanillaMercSkinDefs, skin) >= 0)
+                if (Array.IndexOf(vanillaMercSkinDefs, skin) == -1)
                     continue;
 
                 Assembly ownerAssembly = _skinOwnerAssemblies.GetValueSafe(skin);
                 BepInEx.PluginInfo ownerPlugin = ownerAssembly != null ? _assemblyPluginLookup.GetValueSafe(ownerAssembly) : null;
-
-                void setApplyToSkin(bool apply)
-                {
-                    Renderer[] currentRenderers = apply ? renderers : preDevotionRenderersList;
-                    Renderer[] targetRenderers = apply ? preDevotionRenderersList : renderers;
-
-                    for (int i = 0; i < skin.rendererInfos.Length; i++)
-                    {
-                        ref CharacterModel.RendererInfo rendererInfo = ref skin.rendererInfos[i];
-                        if (!rendererInfo.renderer)
-                            continue;
-
-                        int rendererIndex = Array.IndexOf(currentRenderers, rendererInfo.renderer);
-                        if (rendererIndex >= 0 && rendererIndex < targetRenderers.Length)
-                        {
-                            Log.Info($"Changing {skin.name} RendererInfo renderer {rendererInfo.renderer} -> {targetRenderers[rendererIndex]}");
-                            rendererInfo.renderer = targetRenderers[rendererIndex];
-                        }
-                    }
-
-                    for (int i = 0; i < skin.meshReplacements.Length; i++)
-                    {
-                        ref SkinDef.MeshReplacement meshReplacement = ref skin.meshReplacements[i];
-                        if (!meshReplacement.renderer)
-                            continue;
-
-                        int rendererIndex = Array.IndexOf(currentRenderers, meshReplacement.renderer);
-                        if (rendererIndex >= 0 && rendererIndex < targetRenderers.Length)
-                        {
-                            Log.Info($"Changing {skin.name} MeshReplacement renderer {meshReplacement.renderer} -> {targetRenderers[rendererIndex]}");
-                            meshReplacement.renderer = targetRenderers[rendererIndex];
-                        }
-                    }
-
-                    if (skin.runtimeSkin != null)
-                    {
-                        skin.runtimeSkin = null;
-                        skin.Bake();
-                    }
-                }
 
                 string sectionName = "Unknown";
                 bool fixEnabledByDefault = false;
@@ -326,16 +270,14 @@ namespace MercSkinsFix
 
                 if (shouldApplyToSkinConfig.Value)
                 {
-                    setApplyToSkin(true);
+                    RebakeSkin.SetApplyToSkin(skin, true);
                 }
 
                 shouldApplyToSkinConfig.SettingChanged += (s, e) =>
                 {
-                    SettingChangedEventArgs settingChangedEvent = e as SettingChangedEventArgs;
+                    bool applyToSkin = (bool)(e as SettingChangedEventArgs).ChangedSetting.BoxedValue;
 
-                    bool applyToSkin = (bool)settingChangedEvent.ChangedSetting.BoxedValue;
-
-                    setApplyToSkin(applyToSkin);
+                    RebakeSkin.SetApplyToSkin(skin, applyToSkin);
                 };
             }
 
