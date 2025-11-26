@@ -1,3 +1,7 @@
+**1.2.4 Changes:**
+
+* Fixed for Alloyed Collective
+
 **1.2.3 Changes:**
 
 * Fixed loading stuck at 99% if any merc skin mod started with a whitespace character (why would you do this?)
