@@ -19,8 +19,6 @@ using UnityEngine.AddressableAssets;
 
 namespace MercSkinsFix
 {
-    [BepInDependency(R2API.R2API.PluginGUID)]
-    [BepInDependency(RiskOfOptions.PluginInfo.PLUGIN_GUID)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     public sealed class MercSkinsFixPlugin : BaseUnityPlugin
     {
