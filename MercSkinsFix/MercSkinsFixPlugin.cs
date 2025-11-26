@@ -22,7 +22,7 @@ namespace MercSkinsFix
     [BepInDependency(R2API.R2API.PluginGUID)]
     [BepInDependency(RiskOfOptions.PluginInfo.PLUGIN_GUID)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    public class MercSkinsFixPlugin : BaseUnityPlugin
+    public sealed class MercSkinsFixPlugin : BaseUnityPlugin
     {
         public const string PluginGUID = $"___com.{PluginAuthor}.{PluginName}";
         public const string PluginAuthor = "Gorakh";
@@ -51,7 +51,7 @@ namespace MercSkinsFix
             stopwatch.Stop();
             Log.Info_NoCallerPrefix($"Initialized in {stopwatch.Elapsed.TotalSeconds:F2} seconds");
 
-            DelegateUtils.Append(ref RoR2Application.onLoad, OnLoad);
+            RoR2Application.onLoad += onLoad;
         }
 
         void OnDestroy()
@@ -63,7 +63,7 @@ namespace MercSkinsFix
         }
 
         delegate ScriptableObject orig_ScriptableObject_CreateInstance(Type type);
-        private static ScriptableObject ScriptableObject_CreateInstance(orig_ScriptableObject_CreateInstance orig, Type type)
+        static ScriptableObject ScriptableObject_CreateInstance(orig_ScriptableObject_CreateInstance orig, Type type)
         {
             ScriptableObject obj = orig(type);
 
@@ -158,8 +158,11 @@ namespace MercSkinsFix
             return obj;
         }
 
-        private void OnLoad()
+        void onLoad()
         {
+            RoR2Application.onLoad -= onLoad;
+
+            // TODO: Find a way to automate this for the future, potentially track what content pack a skin comes from?
             SkinDef[] vanillaMercSkinDefs = [
                 Addressables.LoadAssetAsync<SkinDef>(RoR2_Base_Merc.skinMercDefault_asset).WaitForCompletion(),
                 Addressables.LoadAssetAsync<SkinDef>(RoR2_Base_Merc.skinMercAlt_asset).WaitForCompletion(),
@@ -283,9 +286,12 @@ namespace MercSkinsFix
 
                 shouldApplyToSkinConfig.SettingChanged += (s, e) =>
                 {
-                    bool applyToSkin = (bool)(e as SettingChangedEventArgs).ChangedSetting.BoxedValue;
+                    if (e is SettingChangedEventArgs eventArgs)
+                    {
+                        bool applyToSkin = (bool)eventArgs.ChangedSetting.BoxedValue;
 
                     RebakeSkin.SetApplyToSkin(skin, applyToSkin);
+                    }
                 };
             }
 
