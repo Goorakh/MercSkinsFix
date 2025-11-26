@@ -6,7 +6,7 @@ using MonoMod.RuntimeDetour;
 using RiskOfOptions;
 using RiskOfOptions.Options;
 using RoR2;
-using RoR2BepInExPack.GameAssetPaths;
+using RoR2BepInExPack.GameAssetPaths.Version_1_35_0;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -124,7 +124,7 @@ namespace MercSkinsFix
                                             int timestampSeconds = BitConverter.ToInt32(buffer, linkerTimestampLocation);
 
                                             DateTime linkerTimestampUTC = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(timestampSeconds);
-
+                                            
                                             // Timestamp is not *always* number of seconds
                                             // TODO: Handle other cases? Filter out for now
                                             if (linkerTimestampUTC > new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc) && linkerTimestampUTC < DateTime.UtcNow)
@@ -166,6 +166,7 @@ namespace MercSkinsFix
                 Addressables.LoadAssetAsync<SkinDef>(RoR2_Base_Merc.skinMercAlt_asset).WaitForCompletion(),
                 Addressables.LoadAssetAsync<SkinDef>(RoR2_Base_Merc.skinMercAltPrisoner_asset).WaitForCompletion(),
                 Addressables.LoadAssetAsync<SkinDef>(RoR2_Base_Merc.skinMercAltColossus_asset).WaitForCompletion(),
+                Addressables.LoadAssetAsync<SkinDef>(RoR2_Base_Merc.skinMercAltVulture_asset).WaitForCompletion(),
             ];
 
             const string SETTING_MOD_GUID = PluginGUID;
@@ -288,7 +289,7 @@ namespace MercSkinsFix
                     {
                         bool applyToSkin = (bool)eventArgs.ChangedSetting.BoxedValue;
 
-                    RebakeSkin.SetApplyToSkin(skin, applyToSkin);
+                        RebakeSkin.SetApplyToSkin(skin, applyToSkin);
                     }
                 };
             }
