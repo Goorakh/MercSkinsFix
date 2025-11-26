@@ -65,29 +65,13 @@ namespace MercSkinsFix
             orig._runtimeSkin = null;
 
             SkinDefParams skinDefParams = orig.skinDefParams;
-            skinDefParams.rendererInfos = ArrayUtils.Clone(orig.rendererInfos);
-            skinDefParams.gameObjectActivations = new SkinDefParams.GameObjectActivation[orig.gameObjectActivations.Length];
-            for (int i = 0; i < orig.gameObjectActivations.Length; i++)
+            if (skinDefParams)
             {
-                skinDefParams.gameObjectActivations[i] = orig.gameObjectActivations[i];
-            }
-
-            skinDefParams.meshReplacements = new SkinDefParams.MeshReplacement[orig.meshReplacements.Length];
-            for (int j = 0; j < orig.meshReplacements.Length; j++)
-            {
-                skinDefParams.meshReplacements[j] = orig.meshReplacements[j];
-            }
-
-            skinDefParams.projectileGhostReplacements = new SkinDefParams.ProjectileGhostReplacement[orig.projectileGhostReplacements.Length];
-            for (int k = 0; k < orig.projectileGhostReplacements.Length; k++)
-            {
-                skinDefParams.projectileGhostReplacements[k] = orig.projectileGhostReplacements[k];
-            }
-
-            skinDefParams.minionSkinReplacements = new SkinDefParams.MinionSkinReplacement[orig.minionSkinReplacements.Length];
-            for (int l = 0; l < orig.minionSkinReplacements.Length; l++)
-            {
-                skinDefParams.minionSkinReplacements[l] = orig.minionSkinReplacements[l];
+                skinDefParams.rendererInfos = orig.rendererInfos != null ? ArrayUtils.Clone(orig.rendererInfos) : [];
+                skinDefParams.gameObjectActivations = orig.gameObjectActivations != null ? [.. orig.gameObjectActivations] : [];
+                skinDefParams.meshReplacements = orig.meshReplacements != null ? [.. orig.meshReplacements] : [];
+                skinDefParams.projectileGhostReplacements = orig.projectileGhostReplacements != null ? [.. orig.projectileGhostReplacements] : [];
+                skinDefParams.minionSkinReplacements = orig.minionSkinReplacements != null ? [.. orig.minionSkinReplacements] : [];
             }
 
             // cursed
